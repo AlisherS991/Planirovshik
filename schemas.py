@@ -61,12 +61,13 @@ class ProjectBase(BaseModel):
     status: str # 'plan', 'inprogress', 'problems'
 
 class ProjectCreate(ProjectBase):
-    responsible_id: int
+    responsible_ids: List[int] = []
     performer_ids: List[int] = []
 
 class Project(ProjectBase):
     id: int
-    responsible_id: int
+    responsible_ids: List[int] = []
+    responsible_users: List[User] = []
     mini_tasks: List[MiniTask] = []
     problems: List[Problem] = []
     

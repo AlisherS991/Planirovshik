@@ -10,6 +10,14 @@ project_performers = Table(
     Column("project_id", Integer, ForeignKey("projects.id"))
 )
 
+# Association table for project responsible users
+project_responsible = Table(
+    "project_responsible",
+    Base.metadata,
+    Column("user_id", Integer, ForeignKey("users.id")),
+    Column("project_id", Integer, ForeignKey("projects.id"))
+)
+
 class User(Base):
     __tablename__ = "users"
 
@@ -20,8 +28,11 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
 
-    # Projects where this user is the main responsible person
+    # Legacy projects where this user is the main responsible person
     responsible_projects = relationship("Project", back_populates="responsible_user")
+    
+    # New plural projects where this user is one of the responsible persons
+    projects_where_responsible = relationship("Project", secondary=project_responsible, back_populates="responsible_users")
     
     # Projects where this user is a performer
     projects = relationship("Project", secondary=project_performers, back_populates="performers")
@@ -41,8 +52,12 @@ class Project(Base):
     progress = Column(String)
     status = Column(String)  # plan, inprogress, problems
     
+    # Legacy single responsible
     responsible_id = Column(Integer, ForeignKey("users.id"))
     responsible_user = relationship("User", back_populates="responsible_projects")
+    
+    # New multiple responsible users
+    responsible_users = relationship("User", secondary=project_responsible, back_populates="projects_where_responsible")
     
     performers = relationship("User", secondary=project_performers, back_populates="projects")
     mini_tasks = relationship("MiniTask", back_populates="project", cascade="all, delete-orphan")

@@ -38,15 +38,23 @@ def create_project(db: Session, project: schemas.ProjectCreate):
         description=project.description,
         performed=project.performed,
         progress=project.progress,
-        status=project.status,
-        responsible_id=project.responsible_id
+        status=project.status
     )
     
+    # Add responsible users
+    if project.responsible_ids:
+        # Enforce 3 user limit for responsible
+        ids = project.responsible_ids[:3]
+        responsible_users = db.query(models.User).filter(models.User.id.in_(ids)).all()
+        db_project.responsible_users = responsible_users
+        if ids:
+            db_project.responsible_id = ids[0] # Legacy support
+            
     # Add performers
     if project.performer_ids:
         performers = db.query(models.User).filter(models.User.id.in_(project.performer_ids)).all()
         db_project.performers = performers
-        
+
     db.add(db_project)
     db.commit()
     db.refresh(db_project)
