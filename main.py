@@ -100,6 +100,15 @@ def update_project_status(project_id: int, status_update: str, db: Session = Dep
     # Simple status update logic
     return crud.update_project_status(db=db, project_id=project_id, status=status_update)
 
+@app.patch("/projects/{project_id}", response_model=schemas.Project)
+def update_project(project_id: int, project: schemas.ProjectUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    db_project = crud.update_project(db=db, project_id=project_id, project=project)
+    print("frf")
+    if db_project is None:
+        raise HTTPException(status_code=404, detail="Project not found")
+    print("s")
+    return db_project
+
 # MiniTasks and Problems
 @app.post("/projects/{project_id}/tasks/", response_model=schemas.MiniTask)
 def create_task_for_project(project_id: int, task: schemas.MiniTaskCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):

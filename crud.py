@@ -68,6 +68,45 @@ def update_project_status(db: Session, project_id: int, status: str):
         db.refresh(db_project)
     return db_project
 
+def update_project(db: Session, project_id: int, project: schemas.ProjectUpdate):
+
+    db_project = db.query(models.Project).filter(models.Project.id == project_id).first()
+    if not db_project:
+        return None
+    
+    update_data = project.dict(exclude_unset=True)
+    
+    # Handle relationships
+    if "responsible_ids" in update_data:
+        ids = update_data.pop("responsible_ids")
+        if ids:
+            responsible_users = db.query(models.User).filter(models.User.id.in_(ids)).all()
+            db_project.responsible_users = responsible_users
+            db_project.responsible_id = ids[0]
+        else:
+            db_project.responsible_users = []
+            db_project.responsible_id = None
+            
+    if "performer_ids" in update_data:
+        ids = update_data.pop("performer_ids")
+        performers = db.query(models.User).filter(models.User.id.in_(ids)).all()
+        db_project.performers = performers
+
+    if "mini_tasks" in update_data:
+        tasks_data = update_data.pop("mini_tasks")
+        db_project.mini_tasks = [models.MiniTask(**task_data) for task_data in tasks_data]
+
+    if "problems" in update_data:
+        problems_data = update_data.pop("problems")
+        db_project.problems = [models.Problem(**problem_data) for problem_data in problems_data]
+
+    for key, value in update_data.items():
+        setattr(db_project, key, value)
+        
+    db.commit()
+    db.refresh(db_project)
+    return db_project
+
 def create_mini_task(db: Session, mini_task: schemas.MiniTaskCreate, project_id: int):
     db_mini_task = models.MiniTask(**mini_task.dict(), project_id=project_id)
     db.add(db_mini_task)

@@ -64,6 +64,22 @@ class ProjectCreate(ProjectBase):
     responsible_ids: List[int] = []
     performer_ids: List[int] = []
 
+class ProjectUpdate(BaseModel):
+    title: Optional[str] = None
+    date: Optional[str] = None
+    priority: Optional[str] = None
+    department: Optional[str] = None
+    resources: Optional[int] = None
+    budget: Optional[str] = None
+    description: Optional[str] = None
+    performed: Optional[str] = None
+    progress: Optional[str] = None
+    status: Optional[str] = None
+    responsible_ids: Optional[List[int]] = None
+    performer_ids: Optional[List[int]] = None
+    mini_tasks: Optional[List[MiniTaskCreate]] = None
+    problems: Optional[List[ProblemCreate]] = None
+
 class Project(ProjectBase):
     id: int
     responsible_ids: List[int] = []

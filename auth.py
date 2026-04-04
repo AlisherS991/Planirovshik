@@ -13,7 +13,7 @@ load_dotenv()
 # In a real app, these should be environment variables
 SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-for-development-only")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 # 24 hours
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
