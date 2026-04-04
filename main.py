@@ -90,6 +90,7 @@ def read_projects(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
 
 @app.post("/projects/", response_model=schemas.Project)
 def create_project(project: schemas.ProjectCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    print(project.progress)
     # Check if user is allowed to create projects (e.g. admin or планировщик or руководитель)
     if current_user.role not in ["админ", "планировщик", "руководитель"]:
         raise HTTPException(status_code=403, detail="Not authorized to create projects")
@@ -103,10 +104,8 @@ def update_project_status(project_id: int, status_update: str, db: Session = Dep
 @app.patch("/projects/{project_id}", response_model=schemas.Project)
 def update_project(project_id: int, project: schemas.ProjectUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     db_project = crud.update_project(db=db, project_id=project_id, project=project)
-    print("frf")
     if db_project is None:
         raise HTTPException(status_code=404, detail="Project not found")
-    print("s")
     return db_project
 
 # MiniTasks and Problems
