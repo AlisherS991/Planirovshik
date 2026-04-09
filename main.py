@@ -116,3 +116,12 @@ def create_task_for_project(project_id: int, task: schemas.MiniTaskCreate, db: S
 @app.post("/projects/{project_id}/problems/", response_model=schemas.Problem)
 def create_problem_for_project(project_id: int, problem: schemas.ProblemCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     return crud.create_problem(db=db, problem=problem, project_id=project_id)
+
+@app.delete("/projects/{project_id}")
+def delete_project(project_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    if current_user.role not in ["админ", "планировщик", "руководитель"]:
+        raise HTTPException(status_code=403, detail="Not authorized to delete projects")
+    db_project = crud.delete_project(db=db, project_id=project_id)
+    if db_project is None:
+        raise HTTPException(status_code=404, detail="Project not found")
+    return {"message": "Project deleted successfully"}

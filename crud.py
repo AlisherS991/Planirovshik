@@ -120,3 +120,10 @@ def create_problem(db: Session, problem: schemas.ProblemCreate, project_id: int)
     db.commit()
     db.refresh(db_problem)
     return db_problem
+
+def delete_project(db: Session, project_id: int):
+    db_project = db.query(models.Project).filter(models.Project.id == project_id).first()
+    if db_project:
+        db.delete(db_project)
+        db.commit()
+    return db_project
